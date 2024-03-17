@@ -18,6 +18,7 @@ import com.blog.apis.entitiy.Post;
 import com.blog.apis.entitiy.User;
 import com.blog.apis.exceptions.UserNotFoundException;
 import com.blog.apis.payloads.PostDto;
+import com.blog.apis.payloads.PostResponce;
 import com.blog.apis.repository.CategoryRepo;
 import com.blog.apis.repository.PostRepo;
 import com.blog.apis.repository.UserRepo;
@@ -64,10 +65,8 @@ public class PostServiceImpl implements PostService{
 		post.setContent(dto.getContent());
 		post.setTitle(dto.getTitle());
 		post.setIamgeName(dto.getIamgeName());
-		
-		
-		
-		return null;
+		Post postnew = postRepo.save(post);
+	    return this.mapper.map(postnew,PostDto.class);
 	}
 
 	@Override
@@ -77,18 +76,29 @@ public class PostServiceImpl implements PostService{
 	}
 
 	@Override
-	public List<PostDto> getAllPost(Integer pageNumber,Integer pageSize) {
+	public PostResponce getAllPost(Integer pageNumber,Integer pageSize) {
 		
-	    Pageable p = (Pageable) PageRequest.of(pageNumber, pageSize);
+	    Pageable p = (Pageable) PageRequest.of(pageNumber, pageSize);  //this is an pageble object return the data on that page
 	    
 		
-		Page<Post> pagePost = this.postRepo.findAll(p);
-		List<Post> posts = pagePost.getContent();
+		Page<Post> pagePost = this.postRepo.findAll(p);   //return data from database for the 
+		List<Post> posts = pagePost.getContent();  //all data are here than convert page into list  
+		
+		//find data one by one and convet into the postdto 
+		List<PostDto> postDtos = posts.stream().map(post->this.mapper.map(post, PostDto.class)).collect(Collectors.toList());
+		
+		PostResponce postResponce = new PostResponce();
+		
+		postResponce.setContent(postDtos);
+		postResponce.setPageNumber(pagePost.getNumber());
+		postResponce.setPageSize(pagePost.getSize());
+		postResponce.setTotalElement(pagePost.getTotalElements());
+		postResponce.setTotalPage(pagePost.getTotalPages());
+		postResponce.setLastPage(pagePost.isLast());
 		
 		
-		List<PostDto> postDtoList = posts.stream().map(post->this.mapper.map(post, PostDto.class)).collect(Collectors.toList());
 		
-		return postDtoList;
+		return postResponce;
 	}
 
 	@Override
@@ -110,7 +120,8 @@ public class PostServiceImpl implements PostService{
 	}
 
 	@Override
-	public List<PostDto> getPostByCategoryId(Integer categoryId) {
+	public List<PostDto> getPostByCategoryId(Integer categoryId) 
+	{
 		
 		//this.categoryRepo.findById(categoryId).orElseThrow(()->);
 		Category catgory = categoryRepo.findById(categoryId).orElseThrow(()->new UserNotFoundException(categoryId));
@@ -124,8 +135,14 @@ public class PostServiceImpl implements PostService{
 	}
 
 	@Override
-	public List<PostDto> serarchPosts(String keyword) {
-		return null;
+	public List<PostDto> serarchPosts(String keyword) 
+	{
+		List<Post> posts = postRepo.findByTitleContaining(keyword);
+		//posts.stream().map((post)->this.modelMapper.map(post,PostDto.class)).collect(Collectors.toList());
+	
+		List<PostDto> postDtos = posts.stream().map(post->this.mapper.map(post, PostDto.class)).collect(Collectors.toList());
+		
+		return postDtos;
 	}
 
 }

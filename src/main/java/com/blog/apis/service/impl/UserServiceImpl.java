@@ -48,8 +48,8 @@ public class UserServiceImpl  implements UserService {
 	public UserDto getById(Integer userId) {
 		User user = userRepo.findById(userId).orElseThrow(()->new UserNotFoundException(userId));
 		
-		return userToUserDto(user);  
-		//my logic is to find the user by  userId than return the userDto object
+		return  userToUserDto(user);  
+		//my logic    is to find the user by  userId than return the userDto object
 	}
 
 	@Override

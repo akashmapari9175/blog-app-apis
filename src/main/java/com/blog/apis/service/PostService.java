@@ -6,6 +6,7 @@ import org.springframework.stereotype.Service;
 
 import com.blog.apis.entitiy.Post;
 import com.blog.apis.payloads.PostDto;
+import com.blog.apis.payloads.PostResponce;
 
 @Service
 public interface PostService {
@@ -20,7 +21,7 @@ public interface PostService {
 	PostDto getPost(Integer postId);
 	
 	//get all post
-	List<PostDto> getAllPost(Integer pageNumber,Integer pageSize);
+	PostResponce getAllPost(Integer pageNumber,Integer pageSize);
 	
 	//delete post
 	void deletePost(Integer postId);
